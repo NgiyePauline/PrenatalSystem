@@ -59,9 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_doctor'])) {
         $stmt->bind_param("sssd", $username, $hashed_password, $spec, $docFees);
 
         if ($stmt->execute()) {
-            $success = "Doctor added successfully!";
+            $success = "Provider added successfully!";
         } else {
-            $errors[] = "Error adding doctor: " . $stmt->error;
+            $errors[] = "Error adding Provider: " . $stmt->error;
         }
         
         $stmt->close();

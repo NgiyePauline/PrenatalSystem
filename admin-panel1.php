@@ -57,6 +57,31 @@ if($inventory_result) {
 }
 
 // Handle form submissions
+// if(isset($_POST['docsub'])) {
+//     $doctor = $_POST['doctor'];
+//     $dpassword = $_POST['dpassword'];
+//     $demail = $_POST['demail'];
+//     $spec = $_POST['special'];
+//     $phone = $_POST['phone'];
+//     $docFees = $_POST['docFees'];
+    
+//     $query = "INSERT INTO doctb(username,password,email,spec,docFees,phoneno) VALUES('$doctor','$dpassword','$demail','$spec','$docFees','$phone')";
+//     $result = mysqli_query($con,$query);
+// }
+// Handle form submissions
+if(isset($_POST['delete_patient'])) {
+    $pid = $_POST['pid'];
+    $query = "DELETE FROM patreg WHERE pid='$pid'";
+    $result = mysqli_query($con,$query);
+    if($result) {
+        echo "<script>window.location.href='admin-panel1.php#patients';</script>";
+    } else {
+        echo "<script>alert('Failed to delete patient!');</script>";
+    }
+}
+
+
+
 if(isset($_POST['docsub'])) {
     $doctor = $_POST['doctor'];
     $dpassword = $_POST['dpassword'];
@@ -64,10 +89,27 @@ if(isset($_POST['docsub'])) {
     $spec = $_POST['special'];
     $phone = $_POST['phone'];
     $docFees = $_POST['docFees'];
+    $role = $_POST['role'];
+    $qualification = $_POST['qualification'];
+    $license_number = $_POST['license_number'];
+    $department = $_POST['department'];
     
-    $query = "INSERT INTO doctb(username,password,email,spec,docFees,phoneno) VALUES('$doctor','$dpassword','$demail','$spec','$docFees','$phone')";
+    $query = "INSERT INTO doctb(username, password, email, spec, docFees, phoneno, role, qualification, license_number, department) 
+              VALUES('$doctor', '$dpassword', '$demail', '$spec', '$docFees', '$phone', '$role', '$qualification', '$license_number', '$department')";
     $result = mysqli_query($con,$query);
+    
+    if($result) {
+        echo "<script>window.location.href='admin-panel1.php#doctors';</script>";
+    } else {
+        echo "<script>alert('Failed to add provider: " . mysqli_error($con) . "');</script>";
+    }
 }
+
+
+
+
+
+
 
 if(isset($_POST['addmedic'])) {
     $medicname = $_POST['medicname'];
@@ -292,7 +334,7 @@ if(isset($_POST['delete_medicine'])) {
 </head>
 
 <body>
-    <!-- Modern Navbar -->
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <a class="navbar-brand" href="#">
             <i class="fas fa-hospital mr-2"></i>PRENATAL SYSTEM</a>
@@ -311,7 +353,7 @@ if(isset($_POST['delete_medicine'])) {
                 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="doctorsDropdown" data-toggle="dropdown">
-                        <i class="fas fa-user-md mr-1"></i>Doctors
+                        <i class="fas fa-user-md mr-1"></i>Providers
                     </a>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="#doctors" data-toggle="tab">View All</a>
@@ -346,6 +388,13 @@ if(isset($_POST['delete_medicine'])) {
                         <i class="fas fa-envelope mr-1"></i>Messages
                     </a>
                 </li>
+
+                <li class="nav-item">
+    <a class="nav-link" href="#system-management" data-toggle="tab">
+        <i class="fas fa-cogs mr-1"></i>System Management
+    </a>
+</li>
+
             </ul>
             
             <ul class="navbar-nav ml-auto">
@@ -376,9 +425,9 @@ if(isset($_POST['delete_medicine'])) {
                                 <div class="card dashboard-card text-center p-4">
                                     <div class="card-body">
                                         <i class="fas fa-user-md card-icon"></i>
-                                        <h5>Doctors</h5>
+                                        <h5>Staff</h5>
                                         <p class="text-muted">Manage medical staff</p>
-                                        <a href="#doctors" class="btn btn-primary btn-sm" data-toggle="tab">View Doctors</a>
+                                        <a href="#doctors" class="btn btn-primary btn-sm" data-toggle="tab">View Staff</a>
                                     </div>
                                 </div>
                             </div>
@@ -431,7 +480,7 @@ if(isset($_POST['delete_medicine'])) {
                     
                     <!-- Doctors Tab -->
                     <div class="tab-pane fade" id="doctors">
-                        <h3 class="mb-4"><i class="fas fa-user-md mr-2"></i>Doctors</h3>
+                        <h3 class="mb-4"><i class="fas fa-user-md mr-2"></i>Providers</h3>
                         
                         <form class="form-group mb-4" action="doctorsearch.php" method="post">
                             <div class="row">
@@ -450,7 +499,7 @@ if(isset($_POST['delete_medicine'])) {
                             <table class="table table-hover">
                                 <thead class="thead-dark">
                                     <tr>
-                                        <th>Doctor Name</th>
+                                        <th>Name</th>
                                         <th>Specialization</th>
                                         <th>Email</th>
                                         <th>Fees</th>
@@ -493,39 +542,55 @@ if(isset($_POST['delete_medicine'])) {
                         <div class="form-group mb-4">
                             <input type="text" id="patientSearch" class="form-control" placeholder="Search patients...">
                         </div>
-                        
                         <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="thead-dark">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>First Name</th>
-                                        <th>Last Name</th>
-                                        <th>Email</th>
-                                        <th>Contact</th>
-                                        <th>Gender</th>
-                                        <th>Age</th>
-                                        <th>Medical History</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach($patients as $patient): ?>
-                                    <tr>
-                                        <td><?php echo $patient['pid'] ?? ''; ?></td>
-                                        <td><?php echo htmlspecialchars($patient['fname'] ?? ''); ?></td>
-                                        <td><?php echo htmlspecialchars($patient['lname'] ?? ''); ?></td>
-                                        <td><?php echo htmlspecialchars($patient['email'] ?? ''); ?></td>
-                                        <td><?php echo htmlspecialchars($patient['contact'] ?? ''); ?></td>
-                                        <td><?php echo htmlspecialchars($patient['gender'] ?? ''); ?></td>
-                                        <td><?php echo htmlspecialchars($patient['age'] ?? ''); ?></td>
-                                        <td class="medical-history" title="<?php echo htmlspecialchars($patient['medicalhis'] ?? ''); ?>">
-                                            <?php echo htmlspecialchars($patient['medicalhis'] ?? ''); ?>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
+    <table class="table table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Contact</th>
+                <th>Gender</th>
+                <th>Age</th>
+                <th>Medical History</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach($patients as $patient): ?>
+            <tr>
+                <td><?php echo $patient['pid'] ?? ''; ?></td>
+                <td><?php echo htmlspecialchars($patient['fname'] ?? ''); ?></td>
+                <td><?php echo htmlspecialchars($patient['lname'] ?? ''); ?></td>
+                <td><?php echo htmlspecialchars($patient['email'] ?? ''); ?></td>
+                <td><?php echo htmlspecialchars($patient['contact'] ?? ''); ?></td>
+                <td><?php echo htmlspecialchars($patient['gender'] ?? ''); ?></td>
+                <td><?php echo htmlspecialchars($patient['age'] ?? ''); ?></td>
+                <td class="medical-history" title="<?php echo htmlspecialchars($patient['medicalhis'] ?? ''); ?>">
+                    <?php echo htmlspecialchars($patient['medicalhis'] ?? ''); ?>
+                </td>
+                <td>
+                    <!-- <a href="edit-patient.php?pid=<?php echo $patient['pid']; ?>" class="btn btn-primary btn-sm mr-1">
+                        <i class="fas fa-edit"></i> Edit
+                    </a> -->
+                    <a href="edit-patient.php?national_id=<?php echo $patient['national_id']; ?>" class="btn btn-primary btn-sm mr-1">
+                    <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <form method="post" action="admin-panel1.php" style="display:inline;">
+                        <input type="hidden" name="national_id" value="<?php echo $patient['national_id']; ?>">
+                        <button type="submit" name="delete_patient" class="btn btn-danger btn-sm" 
+                                onclick="return confirm('Are you sure you want to delete this patient?')">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+
                     </div>
                     
                     <!-- Appointments Tab -->
@@ -726,7 +791,7 @@ if(isset($_POST['delete_medicine'])) {
                         </div>
                     </div>
                     
-                    <!-- Add Doctor Tab -->
+                    <!-- Add Doctor Tab
                     <div class="tab-pane fade" id="add-doctor">
                         <h3 class="mb-4"><i class="fas fa-user-plus mr-2"></i>Add New Doctor</h3>
                         
@@ -785,7 +850,178 @@ if(isset($_POST['delete_medicine'])) {
                 </div>
             </div>
         </div>
+    </div> -->
+
+<!-- System Management Tab -->
+<div class="tab-pane fade" id="system-management">
+    <h3 class="mb-4"><i class="fas fa-cogs mr-2"></i>System Management</h3>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="fas fa-database"></i> Database Backup</h5>
+                </div>
+                <div class="card-body">
+                    <p>Create a backup of the entire system database.</p>
+                    <a href="backup-db.php" class="btn btn-primary">
+                        <i class="fas fa-download"></i> Create Backup
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="fas fa-bell"></i> System Notifications</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="send-notification.php">
+                        <div class="form-group">
+                            <label>Notification Message:</label>
+                            <textarea class="form-control" name="message" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Send To:</label>
+                            <select class="form-control" name="recipient">
+                                <option value="all">All Users</option>
+                                <option value="patients">Patients Only</option>
+                                <option value="providers">Providers Only</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Send Notification
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5><i class="fas fa-chart-line"></i> System Statistics</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 text-center">
+                    <h3><?php echo count($patients); ?></h3>
+                    <p class="text-muted">Total Patients</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <h3><?php 
+                        $query = "SELECT COUNT(*) as total FROM doctb";
+                        $result = mysqli_query($con, $query);
+                        $row = mysqli_fetch_assoc($result);
+                        echo $row['total'];
+                    ?></h3>
+                    <p class="text-muted">Total Providers</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <h3><?php echo count($appointments); ?></h3>
+                    <p class="text-muted">Total Appointments</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <h3><?php echo count($messages); ?></h3>
+                    <p class="text-muted">Total Messages</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Add Provider Tab -->
+<div class="tab-pane fade" id="add-doctor">
+    <h3 class="mb-4"><i class="fas fa-user-plus mr-2"></i>Add New Healthcare Provider</h3>
+    
+    <form class="form-group" method="post" action="admin-panel1.php">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Full Name:</label>
+                <input type="text" class="form-control" name="doctor" required>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label>Provider Type:</label>
+                <select name="role" class="form-control" required>
+                    <option value="">Select Provider Type</option>
+                    <option value="Obstetrician">Obstetrician</option>
+                    <option value="Gynecologist">Gynecologist</option>
+                    <option value="Midwife">Midwife</option>
+                    <option value="General Practitioner">General Practitioner</option>
+                    <option value="Nurse">Nurse</option>
+                    <option value="Lab Technician">Lab Technician</option>
+                    <option value="Ultrasound Technician">Ultrasound Technician</option>
+                    <option value="Pharmacist">Pharmacist</option>
+                </select>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label>Specialization:</label>
+                <select name="special" class="form-control" required>
+                    <option value="">Select Specialization</option>
+                    <option value="Prenatal Care">Prenatal Care</option>
+                    <option value="Labor & Delivery">Labor & Delivery</option>
+                    <option value="Postpartum Care">Postpartum Care</option>
+                    <option value="Fertility Services">Fertility Services</option>
+                    <option value="Diagnostic Imaging">Diagnostic Imaging</option>
+                    <option value="Pharmacy">Pharmacy</option>
+                    <option value="Laboratory">Laboratory</option>
+                </select>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label>Qualification:</label>
+                <input type="text" class="form-control" name="qualification" required>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label>License Number:</label>
+                <input type="text" class="form-control" name="license_number" required>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label>Department:</label>
+                <input type="text" class="form-control" name="department">
+            </div>
+            
+            
+            <div class="col-md-6 mb-3">
+                <label>Email ID:</label>
+                <input type="email" class="form-control" name="demail" required>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label>Password:</label>
+                <input type="password" class="form-control" name="dpassword" id="dpassword" onkeyup='check();' required>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label>Confirm Password:</label>
+                <input type="password" class="form-control" name="cdpassword" id="cdpassword" onkeyup='check();' required>
+                <small id='message' class="form-text"></small>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label>Consultancy Fees:</label>
+                <input type="text" class="form-control" name="docFees" required>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label>Phone Number:</label>
+                <input type="text" class="form-control" name="phone" required>
+            </div>
+            
+            <div class="col-md-12 mt-3">
+                <button type="submit" name="docsub" class="btn btn-primary">
+                    <i class="fas fa-save mr-1"></i> Add Provider
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
  
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
